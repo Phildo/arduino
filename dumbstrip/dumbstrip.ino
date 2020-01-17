@@ -3,6 +3,7 @@
 #define RING
 //#define STRIP
 
+#define FLUSH_TRIGGER "FLUSH"
 #ifdef RING
   #define STRIP_LED_PIN     2
   #define STRIP_NUM_LEDS    24
@@ -14,10 +15,9 @@
   #define STRIP_BRIGHTNESS  128 //0-128
   #define STRIP_LED_TYPE    WS2811
 #endif
+#define BAUD_RATE 115200
 
 #define STRIP_COLOR_ORDER BRG
-
-#define FLUSH_TRIGGER "FLUSH"
 
 CRGB color_clear;
 CRGB strip_leds[STRIP_NUM_LEDS];
@@ -27,6 +27,8 @@ byte *buff;
 int buff_i;
 int trigger_i;
 
+int flag_i;
+
 void inputToRGB()
 {
   int b = 0;
@@ -35,7 +37,14 @@ void inputToRGB()
     strip_leds[i] = CRGB(buff[b+0],buff[b+1],buff[b+2]);
     b += 3;
   }
-  strip_leds[0] = CRGB(50,0,0);
+}
+
+void flagRGB()
+{
+  strip_leds[flag_i] = CRGB(0,0,0);
+  flag_i++;
+  if(flag_i == STRIP_NUM_LEDS) flag_i = 0;
+  strip_leds[flag_i] = CRGB(50,0,0);
 }
 
 void writestuff()
@@ -50,13 +59,17 @@ void writestuff()
 void setup()
 {
   delay(300); //power-up safety delay
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
   while(!Serial) { ; }
 
   buff_n = STRIP_NUM_LEDS*3+strlen(FLUSH_TRIGGER);
   buff = (byte *)malloc(sizeof(byte)*buff_n+1);
   memset(buff,0,sizeof(byte)*buff_n+1);
   strcpy(buff+(buff_n-strlen(FLUSH_TRIGGER)),FLUSH_TRIGGER);
+
+  buff_i = 0;
+  trigger_i = 0;
+  flag_i = 0;
 
   color_clear = CRGB(0x00,0x00,0x00);
   for(int i = 0; i < STRIP_NUM_LEDS; i++) strip_leds[i] = color_clear;
@@ -69,10 +82,12 @@ void setup()
 
 void loop()
 {
+  int got_something = 0;
   while(Serial.available() > 0)
   {
+    got_something = 1;
     buff[buff_i++] = Serial.read();
-    if(buff[buff_i-1] == FLUSH_TRIGGER[trigger_i])
+    if(trigger_i && buff[buff_i-1] == FLUSH_TRIGGER[trigger_i])
     {
       trigger_i++;
       if(trigger_i == strlen(FLUSH_TRIGGER))
