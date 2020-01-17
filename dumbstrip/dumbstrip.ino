@@ -35,6 +35,7 @@ void inputToRGB()
     strip_leds[i] = CRGB(buff[b+0],buff[b+1],buff[b+2]);
     b += 3;
   }
+  strip_leds[0] = CRGB(50,0,0);
 }
 
 void writestuff()
@@ -54,6 +55,7 @@ void setup()
 
   buff_n = STRIP_NUM_LEDS*3+strlen(FLUSH_TRIGGER);
   buff = (byte *)malloc(sizeof(byte)*buff_n+1);
+  memset(buff,0,sizeof(byte)*buff_n+1);
   strcpy(buff+(buff_n-strlen(FLUSH_TRIGGER)),FLUSH_TRIGGER);
 
   color_clear = CRGB(0x00,0x00,0x00);
@@ -61,6 +63,7 @@ void setup()
 
   FastLED.addLeds<STRIP_LED_TYPE, STRIP_LED_PIN, STRIP_COLOR_ORDER>(strip_leds, STRIP_NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(STRIP_BRIGHTNESS);
+  inputToRGB();
   FastLED.show();
 }
 
@@ -86,7 +89,7 @@ void loop()
     else if(buff[buff_i-1] == FLUSH_TRIGGER[0]) trigger_i = 1;
     else                                        trigger_i = 0;
 
-    if(buff_i == buff_n) buff_i--;
+    if(buff_i == buff_n) buff_i = 0;
   }
 }
 
