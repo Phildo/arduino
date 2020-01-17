@@ -1,7 +1,11 @@
 #include <FastLED.h> //strip
 
-#define RING
+//#define RING
 //#define STRIP
+#define BIGSTRIP
+
+#define LUT
+#define COMPRESS
 
 #define FLUSH_TRIGGER "FLUSH"
 #ifdef RING
@@ -14,8 +18,14 @@
   #define STRIP_NUM_LEDS    100
   #define STRIP_BRIGHTNESS  128 //0-128
   #define STRIP_LED_TYPE    WS2811
+#elif defined BIGSTRIP
+  #define STRIP_LED_PIN     2
+  #define STRIP_NUM_LEDS    100
+  #define STRIP_BRIGHTNESS  64 //0-128
+  #define STRIP_LED_TYPE    WS2812
 #endif
 #define BAUD_RATE 115200
+//#define BAUD_RATE 230400
 
 #define STRIP_COLOR_ORDER BRG
 
@@ -29,14 +39,40 @@ int trigger_i;
 
 int flag_i;
 
+CRGB lut[8];
+
+void initlut()
+{
+  lut[0] = CRGB(0,0,0); //clear
+  lut[1] = CRGB(0,20,0); //dim blue
+  lut[3] = CRGB(50,50,50);
+  lut[4] = CRGB(0,0,0); //clear
+  lut[5] = CRGB(0,0,0); //clear
+  lut[6] = CRGB(0,0,0); //clear
+  lut[7] = CRGB(0,0,0); //clear
+}
+
 void inputToRGB()
 {
+  #ifdef LUT
+    #ifdef COMPRESS
+  for(int i = 0; i < STRIP_NUM_LEDS/2; i++)
+  {
+    strip_leds[i*2  ] = lut[buff[i]&0x0F];
+    strip_leds[i*2+1] = lut[buff[i]>>4];
+  }
+    #else
+  for(int i = 0; i < STRIP_NUM_LEDS; i++)
+    strip_leds[i] = lut[buff[i]];
+    #endif
+  #else
   int b = 0;
   for(int i = 0; i < STRIP_NUM_LEDS; i++)
   {
     strip_leds[i] = CRGB(buff[b+0],buff[b+1],buff[b+2]);
     b += 3;
   }
+  #endif
 }
 
 void flagRGB()
@@ -62,17 +98,26 @@ void setup()
   Serial.begin(BAUD_RATE);
   while(!Serial) { ; }
 
+  initlut();
+
+  #ifdef LUT
+    #ifdef COMPRESS
+  buff_n = STRIP_NUM_LEDS/2+strlen(FLUSH_TRIGGER);
+    #else
+  buff_n = STRIP_NUM_LEDS+strlen(FLUSH_TRIGGER);
+    #endif
+  #else
   buff_n = STRIP_NUM_LEDS*3+strlen(FLUSH_TRIGGER);
+  #endif
   buff = (byte *)malloc(sizeof(byte)*buff_n+1);
   memset(buff,0,sizeof(byte)*buff_n+1);
-  strcpy(buff+(buff_n-strlen(FLUSH_TRIGGER)),FLUSH_TRIGGER);
+  strcpy((char *)buff+(buff_n-strlen(FLUSH_TRIGGER)),FLUSH_TRIGGER); //actually unnecessary
 
   buff_i = 0;
   trigger_i = 0;
   flag_i = 0;
 
-  color_clear = CRGB(0x00,0x00,0x00);
-  for(int i = 0; i < STRIP_NUM_LEDS; i++) strip_leds[i] = color_clear;
+  for(int i = 0; i < STRIP_NUM_LEDS; i++) strip_leds[i] = lut[0];
 
   FastLED.addLeds<STRIP_LED_TYPE, STRIP_LED_PIN, STRIP_COLOR_ORDER>(strip_leds, STRIP_NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(STRIP_BRIGHTNESS);
@@ -82,10 +127,8 @@ void setup()
 
 void loop()
 {
-  int got_something = 0;
   while(Serial.available() > 0)
   {
-    got_something = 1;
     buff[buff_i++] = Serial.read();
     if(trigger_i && buff[buff_i-1] == FLUSH_TRIGGER[trigger_i])
     {
