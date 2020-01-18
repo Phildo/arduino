@@ -1,31 +1,39 @@
 #include <FastLED.h> //strip
 
 //#define RING
-//#define STRIP
-#define BIGSTRIP
+#define STRIP
+//#define BIGSTRIP
 
 #define LUT
 #define COMPRESS
 
+#define STRIP_LED_PIN     2
+#define STRIP_BRIGHTNESS  64 //0-128
 #define FLUSH_TRIGGER "FLUSH"
 #ifdef RING
-  #define STRIP_LED_PIN     2
-  #define STRIP_NUM_LEDS    24
-  #define STRIP_BRIGHTNESS  32 //0-128
-  #define STRIP_LED_TYPE    WS2812
+  #define STRIP_NUM_LEDS 24
+  #define STRIP_LED_TYPE WS2812
 #elif defined STRIP
-  #define STRIP_LED_PIN     3
-  #define STRIP_NUM_LEDS    100
-  #define STRIP_BRIGHTNESS  128 //0-128
-  #define STRIP_LED_TYPE    WS2811
+  #define STRIP_NUM_LEDS 100
+  #define STRIP_LED_TYPE WS2811
 #elif defined BIGSTRIP
-  #define STRIP_LED_PIN     2
-  #define STRIP_NUM_LEDS    100
-  #define STRIP_BRIGHTNESS  64 //0-128
-  #define STRIP_LED_TYPE    WS2812
+  #define STRIP_NUM_LEDS 300
+  #define STRIP_LED_TYPE WS2812
 #endif
 #define BAUD_RATE 115200
 //#define BAUD_RATE 230400
+//#define BAUD_RATE 460800
+//#define BAUD_RATE 500000
+//#define BAUD_RATE 576000
+//#define BAUD_RATE 921600
+//#define BAUD_RATE 1000000
+//#define BAUD_RATE 1152000
+//#define BAUD_RATE 1500000
+//#define BAUD_RATE 2000000
+//#define BAUD_RATE 2500000
+//#define BAUD_RATE 3000000
+//#define BAUD_RATE 3500000
+//#define BAUD_RATE 4000000
 
 #define STRIP_COLOR_ORDER BRG
 
