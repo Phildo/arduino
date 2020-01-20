@@ -20,6 +20,7 @@
   #define STRIP_NUM_LEDS 300
   #define STRIP_LED_TYPE WS2812
 #endif
+//#define BAUD_RATE 9600
 #define BAUD_RATE 115200
 //#define BAUD_RATE 230400
 //#define BAUD_RATE 460800
@@ -45,15 +46,14 @@ byte *buff;
 int buff_i;
 int trigger_i;
 
-int flag_i;
-
 CRGB lut[8];
 
 void initlut()
 {
   lut[0] = CRGB(0,0,0); //clear
   lut[1] = CRGB(0,20,0); //dim blue
-  lut[3] = CRGB(50,50,50);
+  lut[2] = CRGB(40,20,0); //weird yellow
+  lut[3] = CRGB(50,50,50); //white
   lut[4] = CRGB(0,0,0); //clear
   lut[5] = CRGB(0,0,0); //clear
   lut[6] = CRGB(0,0,0); //clear
@@ -81,14 +81,6 @@ void inputToRGB()
     b += 3;
   }
   #endif
-}
-
-void flagRGB()
-{
-  strip_leds[flag_i] = CRGB(0,0,0);
-  flag_i++;
-  if(flag_i == STRIP_NUM_LEDS) flag_i = 0;
-  strip_leds[flag_i] = CRGB(50,0,0);
 }
 
 void writestuff()
@@ -123,7 +115,6 @@ void setup()
 
   buff_i = 0;
   trigger_i = 0;
-  flag_i = 0;
 
   for(int i = 0; i < STRIP_NUM_LEDS; i++) strip_leds[i] = lut[0];
 
