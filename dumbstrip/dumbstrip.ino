@@ -46,18 +46,26 @@ byte *buff;
 int buff_i;
 int trigger_i;
 
-CRGB lut[8];
+CRGB lut[16];
 
 void initlut()
 {
-  lut[0] = CRGB(0,0,0); //clear
-  lut[1] = CRGB(0,20,0); //dim blue
-  lut[2] = CRGB(40,20,0); //weird yellow
-  lut[3] = CRGB(50,50,50); //white
-  lut[4] = CRGB(0,0,0); //clear
-  lut[5] = CRGB(0,0,0); //clear
-  lut[6] = CRGB(0,0,0); //clear
-  lut[7] = CRGB(0,0,0); //clear
+  lut[0x0] = CRGB(0,0,0); //clear
+  lut[0x1] = CRGB(0,20,0); //dim blue
+  lut[0x2] = CRGB(0,40,0); //weird yellow
+  lut[0x3] = CRGB(0,60,0); //white
+  lut[0x4] = CRGB(20,80,0); //clear
+  lut[0x5] = CRGB(40,100,0); //clear
+  lut[0x6] = CRGB(60,120,0); //clear
+  lut[0x7] = CRGB(80,140,20); //clear
+  lut[0x8] = CRGB(100,160,40); //clear
+  lut[0x9] = CRGB(120,180,60); //dim blue
+  lut[0xA] = CRGB(140,200,80); //weird yellow
+  lut[0xB] = CRGB(160,220,100); //white
+  lut[0xC] = CRGB(180,240,120); //clear
+  lut[0xD] = CRGB(200,0,140); //clear
+  lut[0xE] = CRGB(220,0,160); //clear
+  lut[0xF] = CRGB(240,0,180); //clear
 }
 
 void inputToRGB()
